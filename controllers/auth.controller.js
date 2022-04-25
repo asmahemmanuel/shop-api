@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const { loginSchema, registerSchema } = require("../utils/validation");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
     const { value, error } = registerSchema.validate(req.body);
@@ -50,7 +51,22 @@ const login = async (req, res) => {
         return res.status(400).json({ msg: "Invalid Credentials" });
     }
 
-    res.status(200).json(user);
+// generate token
+const token = jwt.sign(
+    // payload or object
+{
+    id: user._id,
+    username: user.username,
+}, 
+// secret key used to encode the payload
+"secret", 
+// options
+{
+    expiresIn: "1h",
+}
+);
+
+    res.status(200).json(token);
 };
 
 module.exports = {
